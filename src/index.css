@@ -1,0 +1,372 @@
+:root {
+  --forest-deep: #0f231b;
+  --forest: #173629;
+  --forest-soft: #1f4536;
+  --gold: #c9a45c;
+  --gold-soft: #e4cb93;
+  --cream: #faf6ed;
+  --ink: #16241d;
+  --ink-soft: #5b6f63;
+  --success: #3fa46a;
+  --danger: #c85c3c;
+  --clay: #e8d9be;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  /* phone-shell target size — clamps between a small-phone floor and a
+     tablet/desktop ceiling so the same markup reads well everywhere */
+  --shell-width: clamp(320px, 92vw, 400px);
+  --shell-height: clamp(560px, 88dvh, 720px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: radial-gradient(circle at 50% 0%, var(--forest-soft), var(--forest-deep));
+  min-height: 100dvh;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+input {
+  font-family: inherit;
+}
+
+/* ---------- layout shell ---------- */
+
+.app-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 4vw, 48px) 16px;
+}
+
+.brand-lockup {
+  text-align: center;
+  margin-bottom: clamp(14px, 3vw, 24px);
+}
+
+.brand-eyebrow {
+  color: var(--gold-soft);
+  letter-spacing: 4px;
+  font-size: clamp(10px, 2.4vw, 12px);
+  font-family: var(--font-mono);
+}
+
+.brand-title {
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-size: clamp(18px, 4.2vw, 24px);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.phone-shell {
+  width: var(--shell-width);
+  height: var(--shell-height);
+  max-height: 720px;
+  background: var(--cream);
+  border-radius: 40px;
+  border: 8px solid var(--forest-deep);
+  box-shadow: 0 30px 60px rgba(15, 35, 27, 0.35);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Small phones: the shell becomes the whole screen — a real app, not a
+   mockup of one — so there's no wasted chrome on the smallest devices. */
+@media (max-width: 420px), (max-height: 700px) and (max-width: 480px) {
+  .app-shell {
+    padding: 0;
+  }
+  .brand-lockup {
+    padding: 14px 16px 6px;
+    margin-bottom: 0;
+  }
+  .phone-shell {
+    width: 100%;
+    height: auto;
+    min-height: calc(100dvh - 64px);
+    max-height: none;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
+}
+
+/* Tablet and up: give the framed-device mockup more room to breathe and
+   let the deep-green backdrop read as part of the presentation. */
+@media (min-width: 768px) {
+  :root {
+    --shell-width: 400px;
+    --shell-height: 740px;
+  }
+  .brand-title {
+    font-size: 26px;
+  }
+}
+
+@media (min-width: 1200px) {
+  :root {
+    --shell-height: 760px;
+  }
+}
+
+/* ---------- phone chrome ---------- */
+
+.phone-topbar {
+  background: var(--forest-deep);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(14px, 3.5vw, 20px) clamp(16px, 4vw, 20px) 12px;
+}
+
+.phone-topbar__label {
+  font-family: var(--font-display);
+  letter-spacing: 1px;
+  color: var(--gold-soft);
+  font-size: 13px;
+}
+
+.phone-back {
+  background: transparent;
+  color: var(--cream);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+
+.phone-back:disabled {
+  opacity: 0.25;
+}
+
+.trace-marks {
+  background: var(--forest-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 0 16px;
+}
+
+.trace-mark {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.18);
+  transition: all 0.35s ease;
+}
+
+.trace-mark--active {
+  width: 22px;
+  background: var(--gold);
+}
+
+.trace-mark--done {
+  width: 8px;
+  background: var(--gold);
+}
+
+.trace-mark--todo {
+  width: 8px;
+}
+
+/* ---------- step content ---------- */
+
+.step-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(18px, 5vw, 24px) clamp(18px, 5vw, 24px) clamp(20px, 5vw, 28px);
+  min-height: 0; /* allow inner content to scroll instead of clipping */
+  overflow-y: auto;
+}
+
+.step-heading {
+  font-family: var(--font-display);
+  font-size: clamp(17px, 4.5vw, 19px);
+  color: var(--ink);
+  margin: 0 0 4px;
+  text-align: center;
+}
+
+.step-subtext {
+  color: var(--ink-soft);
+  font-size: 13px;
+  text-align: center;
+  margin: 0 0 clamp(18px, 5vw, 24px);
+}
+
+.primary-btn {
+  padding: 14px 0;
+  border-radius: 12px;
+  background: var(--forest-deep);
+  color: var(--gold-soft);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.primary-btn:disabled {
+  background: var(--clay);
+  color: var(--ink-soft);
+}
+
+.secondary-btn {
+  padding: 13px 0;
+  border-radius: 12px;
+  background: transparent;
+  border: 1.5px solid var(--forest-deep);
+  color: var(--forest-deep);
+  font-weight: 600;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.field-input {
+  border: 1.5px solid var(--clay);
+  border-radius: 12px;
+  height: 52px;
+  padding: 0 16px;
+  font-size: 15px;
+  width: 100%;
+  outline: none;
+  background: #fff;
+}
+
+.field-input:focus {
+  border-color: var(--gold);
+}
+
+.error-banner {
+  background: #fbeae4;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  font-size: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  font-family: var(--font-body);
+}
+
+/* ---------- scan step ---------- */
+
+.qr-frame {
+  width: clamp(170px, 55vw, 220px);
+  height: clamp(170px, 55vw, 220px);
+  border-radius: 20px;
+  background: var(--forest-deep);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.qr-corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-color: var(--gold);
+  border-style: solid;
+}
+
+.qr-corner--tl {
+  top: 10px;
+  left: 10px;
+  border-width: 3px 0 0 3px;
+}
+.qr-corner--tr {
+  top: 10px;
+  right: 10px;
+  border-width: 3px 3px 0 0;
+}
+.qr-corner--bl {
+  bottom: 10px;
+  left: 10px;
+  border-width: 0 0 3px 3px;
+}
+.qr-corner--br {
+  bottom: 10px;
+  right: 10px;
+  border-width: 0 3px 3px 0;
+}
+
+.qr-scanline {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: var(--gold);
+  transition: top 1.1s ease-in-out;
+  box-shadow: 0 0 12px 2px var(--gold);
+}
+
+/* ---------- otp step ---------- */
+
+.otp-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(6px, 2vw, 8px);
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto 10px;
+}
+
+.otp-input {
+  width: 100%;
+  aspect-ratio: 5 / 6;
+  text-align: center;
+  font-size: clamp(15px, 4vw, 18px);
+  font-family: var(--font-mono);
+  border: 1.5px solid var(--clay);
+  border-radius: 10px;
+  outline: none;
+}
+
+.otp-input--filled {
+  border-color: var(--gold);
+}
+
+/* ---------- result step ---------- */
+
+.result-card {
+  width: 100%;
+  background: #fff;
+  border: 1.5px solid var(--clay);
+  border-radius: 16px;
+  overflow: hidden;
+  text-align: left;
+}
+
+.result-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
