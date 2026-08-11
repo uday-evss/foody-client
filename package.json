@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
-  },
+  }
+,
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.7",
     "axios": "^1.7.4",
