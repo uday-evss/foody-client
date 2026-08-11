@@ -36,11 +36,22 @@ export default function OtpStep() {
 
   return (
     <div className="step-body">
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <h2 className="step-heading">Enter the code</h2>
         <p className="step-subtext">Sent to +91 {mobileNumber}</p>
 
         {error && <div className="error-banner">{error}</div>}
+        <p style={{ color: "var(--ink-soft)", fontSize: 12 }}>
+          Enter 624103
+        </p>
 
         <div className="otp-grid">
           {digits.map((d, i) => (
@@ -56,10 +67,16 @@ export default function OtpStep() {
             />
           ))}
         </div>
-        <p style={{ color: "var(--ink-soft)", fontSize: 12 }}>Resend code in 24s</p>
+        <p style={{ color: "var(--ink-soft)", fontSize: 12 }}>
+          Resend code in 24s
+        </p>
       </div>
 
-      <button className="primary-btn" disabled={!isComplete || status === "loading"} onClick={handleSubmit}>
+      <button
+        className="primary-btn"
+        disabled={!isComplete || status === "loading"}
+        onClick={handleSubmit}
+      >
         {status === "loading" ? "Verifying…" : "Verify and continue"}
       </button>
     </div>
