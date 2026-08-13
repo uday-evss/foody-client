@@ -18,6 +18,10 @@ export default function ScanStep() {
   // they're only read once, when the user presses Continue.
   const decodedRef = useRef<string>(FALLBACK_REFERENCE_NO);
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  // Guards against re-locking on every subsequent frame — a ref (not state)
+  // because it's read inside the success callback, which was created once
+  // when the effect ran and would otherwise see a stale `scanned`.
+  const lockedRef = useRef(false);
 
   useEffect(() => {
     const scanner = new Html5Qrcode(QR_READER_ELEMENT_ID);
@@ -28,12 +32,18 @@ export default function ScanStep() {
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 200, height: 200 } },
         (decodedText) => {
-          // A successful decode only unlocks the Continue button. It does
-          // NOT advance the step, dispatch anything, or stop the camera —
-          // the scan animation and feed keep running until the user
-          // explicitly presses Continue.
+          // Lock onto the first clear read — ignore every frame after it.
+          // Without this, a continuously-decoding camera keeps firing this
+          // callback (and re-freezing/updating state) for as long as the
+          // code stays in view, which reads as flickery/uncertain to the
+          // user. Locking also freezes the video on the successful frame,
+          // giving clear visual confirmation while we wait for Continue.
+          if (lockedRef.current) return;
+          lockedRef.current = true;
+
           decodedRef.current = decodedText;
           setScanned(true);
+          scannerRef.current?.pause(true);
         },
         () => {
           // per-frame "no QR in view yet" callback — expected noise, ignore
