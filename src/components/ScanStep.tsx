@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
+import { useAppDispatch } from "../app/hooks";
+import { goToStep } from "../features/verification/verificationSlice";
 
 const QR_READER_ELEMENT_ID = "qr-reader";
 
 export default function ScanStep() {
+  const dispatch = useAppDispatch();
+
   const [scanned, setScanned] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
 
@@ -19,24 +23,32 @@ export default function ScanStep() {
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: { width: 200, height: 200 },
+          qrbox: {
+            width: 200,
+            height: 200,
+          },
         },
         () => {
           // QR detected.
-          // We don't store the QR value.
-          // We don't dispatch anything.
-          // We don't call any API.
+          // We intentionally do NOT:
+          // - store the QR value
+          // - call any API
+          // - dispatch scanQrCode
           if (lockedRef.current) return;
 
           lockedRef.current = true;
           setScanned(true);
 
+          // Pause scanner after QR detection
           scannerRef.current?.pause(true);
         },
-        () => {},
+        () => {
+          // Ignore continuous QR scanning errors
+        },
       )
       .catch((err) => {
         console.error("Camera start failed:", err);
+
         setCameraError("Camera unavailable — you can still continue");
       });
 
@@ -53,11 +65,10 @@ export default function ScanStep() {
   const handleContinue = () => {
     if (!canContinue) return;
 
-    // Continue button action.
+    // Only move to the next step.
     // No QR value is stored.
-    // No dispatch.
-    // No API call.
-    console.log("Continue pressed");
+    // No API call is made.
+    dispatch(goToStep("mobile"));
   };
 
   return (
