@@ -14,13 +14,8 @@ export default function ScanStep() {
   const [scanned, setScanned] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
 
-  // Refs (not state) because these values don't need to trigger re-renders —
-  // they're only read once, when the user presses Continue.
   const decodedRef = useRef<string>(FALLBACK_REFERENCE_NO);
   const scannerRef = useRef<Html5Qrcode | null>(null);
-  // Guards against re-locking on every subsequent frame — a ref (not state)
-  // because it's read inside the success callback, which was created once
-  // when the effect ran and would otherwise see a stale `scanned`.
   const lockedRef = useRef(false);
 
   useEffect(() => {
@@ -32,22 +27,13 @@ export default function ScanStep() {
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 200, height: 200 } },
         (decodedText) => {
-          // Lock onto the first clear read — ignore every frame after it.
-          // Without this, a continuously-decoding camera keeps firing this
-          // callback (and re-freezing/updating state) for as long as the
-          // code stays in view, which reads as flickery/uncertain to the
-          // user. Locking also freezes the video on the successful frame,
-          // giving clear visual confirmation while we wait for Continue.
           if (lockedRef.current) return;
           lockedRef.current = true;
-
           decodedRef.current = decodedText;
           setScanned(true);
           scannerRef.current?.pause(true);
         },
-        () => {
-          // per-frame "no QR in view yet" callback — expected noise, ignore
-        },
+        () => {},
       )
       .catch((err) => {
         console.error("Camera start failed:", err);
@@ -56,20 +42,19 @@ export default function ScanStep() {
         );
       });
 
-    // Stop the camera whenever this step unmounts (Continue pressed, or the
-    // user navigates back to it later) so it's never left running silently.
     return () => {
       scannerRef.current
         ?.stop()
         .then(() => scannerRef.current?.clear())
-        .catch(() => {
-          /* already stopped/never started — nothing to clean up */
-        });
+        .catch(() => {});
     };
   }, []);
 
   const canContinue = scanned || !!cameraError;
 
+  // Same API call as the old version — dispatch(scanQrCode(...)) triggers
+  // the GET /api/products/:referenceNo thunk. Only the argument's source
+  // changed: a hardcoded constant before, decodedRef.current now.
   const handleContinue = () => {
     dispatch(scanQrCode(decodedRef.current));
   };
@@ -85,8 +70,6 @@ export default function ScanStep() {
         <div className="qr-corner qr-corner--tr" />
         <div className="qr-corner qr-corner--bl" />
         <div className="qr-corner qr-corner--br" />
-        {/* Loops continuously regardless of detection state. The only thing
-            that stops it is this component unmounting on Continue. */}
         <div className="qr-scanline qr-scanline--looping" />
       </div>
 
